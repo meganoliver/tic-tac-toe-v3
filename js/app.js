@@ -91,7 +91,7 @@ const hover = function() {
 		})
 	};
 };
-//-----------------------------WIN FUNCTION-----------------------------------
+//-----------------------------WIN AND TIE FUNCTIONS-----------------------------------
 
 const oWin = function() {
 	
@@ -181,11 +181,14 @@ const tieGame = function() {
 	}
 };
 
+//----------------------------------START NEW GAME----------------------------------
+
 //-----------------------------BUILD THE GAME----------------------------------------
 const ticTacToe = function() {
 //Set up the start screen
 	$('#board').hide();
 	$('#finish').hide();
+	$('#start').show();
 	$('#nameInput').hide();
 	$('#radioBtns').change(function() {
 		if($('#1player').is(":checked")) {
@@ -204,13 +207,16 @@ const ticTacToe = function() {
 	$('#startBtn').click(function() {
 		let $player1 = $('#player1Name').val(); 
 		let $player2 = $('#player2Name').val();
-		$('#start').hide();
-		$('#board').show();
-		$('#player1').append(`<p>${$player1}</p>`);
-		if($player2.length > 0) {
-			$('#player2').append(`<p>${$player2}</p>`);
-		} else {
+		if($('#1player').is(":checked") && $player1.length > 0) {
+			$('#start').hide();
+			$('#board').show();
+			$('#player1').append(`<p>${$player1}</p>`);
 			$('#player2').append(`<p>Mr. Roboto</p>`);
+		} else if($('#2player').is(":checked") && $player2.length > 0) {
+			$('#start').hide();
+			$('#board').show();
+			$('#player1').append(`<p>${$player1}</p>`);
+			$('#player2').append(`<p>${$player2}</p>`);
 		}
 		$('#player1').addClass("active");
 	});//End game setup
@@ -238,6 +244,12 @@ const ticTacToe = function() {
 //-----------------------------PLAY THE GAME!---------------------------------------
 
 ticTacToe();
+$('#finish header .button').click(function() {
+	$('#player1Name').val("");
+	$('#player2Name').val("");
+	$('input[type="radio"]').prop('checked', false);
+	ticTacToe();	
+	})
 } ();
 
 
