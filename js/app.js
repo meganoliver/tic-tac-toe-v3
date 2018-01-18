@@ -109,43 +109,51 @@ const onePlayerGame = function() {
 		let almostWinO = [];
 		let almostWinX = [];
 		if($($player2).hasClass("active")) {
-			for( const boxes in oWinScenarios) {
-				//block a win by O
-				if(oWinScenarios[boxes] === 2) {
-					$.each(oWinScenarios, function(key, value) {
-						if(value === 2){
-							rowColumn = key;
-						}
-					});
-					almostWinO = $(`.${rowColumn}`).toArray();
-					$.each(almostWinO, function(i, val) {
-						if($(almostWinO[i]).hasClass("box-filled-1") === false) {
-							$(almostWinO[i]).addClass("box-filled-2");
-						}
-					});
-				//Take the win for X
-				} else if (xWinScenarios[boxes] === 2) {
+			
+
 					$.each(xWinScenarios, function(key, value) {
 						if(value === 2){
 							rowColumn = key;
 						}
 					});
-					almostWinX = $(`.${rowColumn}`).toArray();
-					$.each(almostWinX, function(i, val) {
-						if($(almostWinX[i]).hasClass("box-filled-2") === false) {
-							$(almostWinX[i]).addClass("box-filled-2");
+					if(rowColumn !== undefined){
+						almostWinX = $(`.${rowColumn}`).toArray();
+					}
+					if(almostWinX.length === 3) {
+						$.each(almostWinX, function(i, val) {
+							if($(almostWinX[i]).hasClass("box-filled-1") === false) {
+								$(almostWinX[i]).addClass("box-filled-2");
+								$($player2).removeClass("active");
+								$($player1).addClass("active");
+							}
+						});
+					}
+
+					$.each(oWinScenarios, function(key, value) {
+						if(value === 2){
+							rowColumn = key;
 						}
 					});
-				
-				} else if(xWinScenarios !== 2 && oWinScenarios !== 2) {
+					if(rowColumn !== undefined) {
+						almostWinO = $(`.${rowColumn}`).toArray();
+					}
+					if(almostWinO.length === 3) {
+						$.each(almostWinO, function(i, val) {
+							if($(almostWinO[i]).hasClass("box-filled-1") === false) {
+								$(almostWinO[i]).addClass("box-filled-2");
+							}
+						});
+					}
+					
+				console.log(rowColumn);
+				if(rowColumn === undefined) {
 					$(openBoxes[0]).addClass("box-filled-2");
 					$($player2).removeClass("active");
 					$($player1).addClass("active");
 				};
-			}
 		}
 		tieGame();
-	});
+	});	
 	xWin();	
 };
 	
