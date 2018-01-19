@@ -33,6 +33,8 @@ let xWinScenarios = {
 
 let openBoxes = [];
 let boxChoice;
+let done = false;
+let hoverBox;
 
 //------------------------------ASSIGN CLASSES TO ROWS/COLUMNS/DIAGONALS---------------
 
@@ -89,10 +91,32 @@ const startScreen = function() {
 	}); //End radio change listener and start screen activity
 };
 
+//-------------------------------HOVER FUNCTION-----------------------------------------
+
+$('#board').mouseenter(function(e) {
+	hoverBox = e.target;
+	console.log("hover!");
+	if(!$(hoverBox).hasClass("box-filled-1") && !$(hoverBox).hasClass("box-filled-2") ) {
+		console.log("hover");
+		if($($player1).hasClass("active")) {
+			console.log("player 1");
+			$(hoverBox).css({"background-image": "url(img/o.svg)"});
+		}
+		if($($player2).hasClass("active")) {
+			$(hoverBox).css({"background-image": "url(img/x.svg)"});
+		}
+	}
+	}).mouseout(function(e) {
+		$(hoverBox).removeAttr("style");
+});
+	
+
+
 //------------------------------GAME PLAY------------------------------------------
 
 const onePlayerGame = function() {
 	$($board).click(function() {
+		done = false;
 		let boxChoice = this;
 		if($($player1).hasClass("active") && $(this).hasClass("box-filled-2") === false && $(this).hasClass("box-filled-1") === false) {
 			$(boxChoice).css("pointerEvents", "none");
@@ -105,10 +129,13 @@ const onePlayerGame = function() {
 	oWin();
 
 	$($board).click(function() {
+		console.log(done);
+		done = false;
 		let boxChoice = this;
 		let rowColumn;
 		let almostWinO = [];
 		let almostWinX = [];
+
 		if($($player2).hasClass("active")) {
 			$(boxChoice).css("pointerEvents", "none");
 			$.each(xWinScenarios, function(key, value) {
@@ -121,8 +148,9 @@ const onePlayerGame = function() {
 			}
 			if(almostWinX !== []) {
 				$.each(almostWinX, function(i, val) {
-					if($(almostWinX[i]).hasClass("box-filled-1") === false && $(almostWinX[i]).hasClass("box-filled-2") === false) {
+					if($(almostWinX[i]).hasClass("box-filled-1") === false && $(almostWinX[i]).hasClass("box-filled-2") === false && done === false) {
 						$(almostWinX[i]).addClass("box-filled-2");
+						done = true;
 						$($player2).removeClass("active");
 						$($player1).addClass("active");
 					}
@@ -139,17 +167,17 @@ const onePlayerGame = function() {
 			}
 			if(almostWinO.length === 3) {
 				$.each(almostWinO, function(i, val) {
-					if($(almostWinO[i]).hasClass("box-filled-1") === false && $(almostWinX[i]).hasClass("box-filled-2") === false) {
+					if($(almostWinO[i]).hasClass("box-filled-1") === false && $(almostWinX[i]).hasClass("box-filled-2") === false && $(done) === false) {
 						$(almostWinO[i]).addClass("box-filled-2");
+						done = true;
 						$($player2).removeClass("active");
 						$($player1).addClass("active");
 					}
 				});
 			}
-			
-			console.log(rowColumn);
-			if(rowColumn === undefined) {
+			if(rowColumn === undefined && done === false) {
 				$(openBoxes[0]).addClass("box-filled-2");
+				done = true;
 				$($player2).removeClass("active");
 				$($player1).addClass("active");
 			}
@@ -186,45 +214,20 @@ const twoPlayerGame = function() {
 const startGame = function() {
 		let $player1 = $('#player1Name').val(); 
 		let $player2 = $('#player2Name').val();
+		$('#start').slideUp(700);
+		$('#board').fadeIn(900);
+		$('#player1').addClass("active");
 		if($('#1player').is(":checked") && $player1.length > 0) {
-			$('#start').slideUp(700);
-			$('#board').fadeIn(900);
-			$('#player1').append(`<p>${$player1}</p>`);
-			$('#player2').append(`<p>Mr. Roboto</p>`);
-			onePlayerGame();
+				$('#player1').append(`<p>${$player1}</p>`);
+				$('#player2').append(`<p>Mr. Roboto</p>`);
+				onePlayerGame();
 		} else if($('#2player').is(":checked") && $player1.length > 0 && $player2.length > 0) {
-			$('#start').slideUp(700);
-			$('#board').fadeIn(900);
-			$('#player1').append(`<p id="nameOne">${$player1}</p>`);
-			$('#player2').append(`<p id="nameTwo">${$player2}</p>`);
-			twoPlayerGame();
-		}
-		$('#player1').addClass("active");	
+				$('#player1').append(`<p id="nameOne">${$player1}</p>`);
+				$('#player2').append(`<p id="nameTwo">${$player2}</p>`);
+				twoPlayerGame();
+			}
 };
-//-------------------------------HOVER FUNCTION-----------------------------------------
 
-// const hover = function() {
-// 	if($($player1).hasClass("active")) {
-// 		$($boxes).hover(
-// 			function() {
-// 				let hoverBox = this;
-// 				$(hoverBox).css("backgroundImage", "url(img/o.svg)")};
-// 			function() {
-// 				let hoverBox = this;
-// 				$(hoverBox).removeProp("backgroundImage");
-// 			}
-// 		);
-
-// 	} else if($($player2).hasClass("active")) {
-// 		$($boxes).hover(
-// 			function() {
-// 				let hoverBox = this;
-// 				$(hoverBox).css("backgroundImage", "url(img/x.svg)");},
-// 			function() {
-// 			$(hoverBox).removeProp("backgroundImage");
-// 		});
-// 	}
-// };
 //-----------------------------WIN AND TIE FUNCTIONS-----------------------------------
 
 const oWin = function() {
@@ -258,12 +261,14 @@ const oWin = function() {
 
 		for( const boxes in oWinScenarios) {
 			let $player1 = $('#player1Name').val(); 
-			if(oWinScenarios[boxes] === 3) {
-				$('#board').slideUp(700);
-				$('#finish').fadeIn(700);
-				$('#finish').addClass("screen-win-one");
-				$('.message').text(`${$player1} is the winner!`);
-			}
+			setTimeout(function(){
+				if(oWinScenarios[boxes] === 3) {
+					$('#board').slideUp(700);
+					$('#finish').fadeIn(700);
+					$('#finish').addClass("screen-win-one");
+					$('.message').text(`${$player1} is the winner!`);
+				}
+			}, 1000);
 		}
 	});	
 };
@@ -299,10 +304,13 @@ const xWin = function() {
 		for( const boxes in xWinScenarios) {
 			if(xWinScenarios[boxes] === 3) {
 				let $player2 = $('#player2Name').val();
-				$('#board').slideUp(700);
-				$('#finish').fadeIn(700);
-				$('#finish').addClass("screen-win-two");
-				$('.message').text(`${$player2} is the winner!`);
+				setTimeout(function(){
+					$('#board').slideUp(700);
+					$('#finish').fadeIn(700);
+					$('#finish').addClass("screen-win-two");
+					$('.message').text(`${$player2} is the winner!`);
+				}, 1000);
+				
 			}
 		}
 	});	
@@ -310,39 +318,16 @@ const xWin = function() {
 
 const tieGame = function() {
 	let boxCount = oWinScenarios.row1 + oWinScenarios.row2 + oWinScenarios.row3 + xWinScenarios.row1 + xWinScenarios.row2 + xWinScenarios.row3; 
-	if(boxCount === 8) {
-		$('#board').slideUp(700);
-		$('#finish').fadeIn(700);
-		$('#finish').addClass("screen-win-tie");
-		$('.message').text("It's a tie!");
-	}
+	setTimeout(function(){	
+		if(boxCount === 8) {
+			$('#board').slideUp(700);
+			$('#finish').fadeIn(700);
+			$('#finish').addClass("screen-win-tie");
+			$('.message').text("It's a tie!");
+		}
+	}, 1000);
+	
 };
-
-//----------------------------------1 PLAYER GAME----------------------------------
-
-// const onePlayerGame = function() {
-// 	$('.boxes li').click(function() {
-// 		let boxChoice = this;
-// 		if($($player1).hasClass("active") && $(this).hasClass("box-filled-2") === false && $(this).hasClass("box-filled-1") === false) {
-// 			$(boxChoice).addClass("box-filled-1");
-// 			$($player1).removeClass("active");
-// 			$($player2).addClass("active");
-// 		}
-// 	});
-// 	if($($player2).hasClass("active")) {
-// 		for(const boxes in oWinScenarios) {
-// 			if(oWinScenarios[boxes] === 2) {
-// 				let blank = $(this).not(box => box.hasClass("box-filled-1"));
-// 				$(blank).addClass("box-filled-2");
-// 			} else {
-// 				let blank = $($board).not(box => box.hasClass("box-filled-1"));
-// 				blank[0].addClass("box-filled-2");
-// 			}
-// 			$($player2).removeClass("active");
-// 			$($player1).addClass("active");
-// 		}
-// 	}
-// };
 
 //----------------------------NEW GAME---------------------------------------------
 
@@ -353,15 +338,15 @@ const startOver = function() {
 //-----------------------------BUILD THE GAME----------------------------------------
 const ticTacToe = function() {
 
-startScreen();
+	startScreen();
 
-$('#startBtn').click(function() {
-	startGame();
-});
+	$('#startBtn').click(function() {
+		startGame();
+	});
 
-$('#newGame').click(function() {
-	startOver();	
-});
+	$('#newGame').click(function() {
+		startOver();	
+	});
 
 };
 
