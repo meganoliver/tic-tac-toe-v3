@@ -38,8 +38,8 @@ let openBoxes = [];
 let boxChoice;
 let done = false;
 let hoverBox;
-let block = "";
-let win = "";
+let block;
+let win;
 let rowColumnX;
 let rowColumnO;
 
@@ -161,39 +161,36 @@ const endGame = function() {
 	let boxCount = oWinScenarios.row1 + oWinScenarios.row2 + oWinScenarios.row3 + xWinScenarios.row1 + xWinScenarios.row2 + xWinScenarios.row3; 
 	
 	if($($player1).hasClass("active")) {
-		setTimeout(function(){
 			for( const boxes in oWinScenarios) {
 				if(oWinScenarios[boxes] === 3) {
 					$('#board').slideUp(700);
 					$('#finish').fadeIn(700);
 					$('#finish').addClass("screen-win-one");
-					$('.message').text(`${$player1Name} is the winner!`);
+					$('.message').text(`${$('#nameOne').text()} is the winner!`);
 					return;
-				} else if(boxCount === 8) {
+				} else if(boxCount === 9) {
 				$('#board').slideUp(700);
 				$('#finish').fadeIn(700);
 				$('#finish').addClass("screen-win-tie");
 				$('.message').text("It's a tie!");
 				}
 			}
-		}, 700);
-	} else if($($player2).hasClass("active")) {
-		setTimeout(function(){
+	} 
+	if($($player2).hasClass("active")) {
 			for( const boxes in xWinScenarios) {
 				if(xWinScenarios[boxes] === 3) {
 					$('#board').slideUp(700);
 					$('#finish').fadeIn(700);
 					$('#finish').addClass("screen-win-two");
-					$('.message').text(`${$player2Name} is the winner!`);
+					$('.message').text(`${$('#nameTwo').text()} is the winner!`);
 					return;
-				} else if(boxCount === 8) {
+				} else if(boxCount === 9) {
 				$('#board').slideUp(700);
 				$('#finish').fadeIn(700);
 				$('#finish').addClass("screen-win-tie");
 				$('.message').text("It's a tie!");
 				}
 			} 
-		}, 700);
 	} 
 };
 
@@ -252,6 +249,8 @@ const onePlayerGame = function() {
 				return;
 			}
 		if($($player2).hasClass("active")) {
+			block = "";
+			win = "";
 			$.each(xWinScenarios, function(key, value) {
 				if(value === 2){
 					rowColumnX = key;
@@ -259,11 +258,13 @@ const onePlayerGame = function() {
 					win = almostWinX.filter(Xitem => {
 						if($(Xitem).hasClass("box-filled-2") || $(Xitem).hasClass("box-filled-1")) {
 							return false;
-							rowColumnX = undefined;
 						} else {
 							return true;
 						}
 					});
+				}
+				if(win.length === 1) {
+					return false;
 				}
 			});
 			$.each(oWinScenarios, function(key, value) {
@@ -273,13 +274,17 @@ const onePlayerGame = function() {
 					block = almostWinO.filter(Oitem => {
 						if($(Oitem).hasClass("box-filled-1") || $(Oitem).hasClass("box-filled-2")) {
 							return false;
-							rowColumnO = undefined;
 						} else {
 							return true;
 						}
 					});
 				}
+				if(block.length === 1) {
+					return false;
+				}
 			});
+			console.log(win);
+			console.log(block);
 
 			if(win.length === 1 && done === false) {
 					$(win).addClass("box-filled-2");
@@ -338,8 +343,9 @@ const startGame = function() {
 		$('#board').fadeIn(900);
 		$('#player1').addClass("active");
 		if($('#1player').is(":checked") && $player1.length > 0) {
-				$('#player1').append(`<p>${$player1Name}</p>`);
-				$('#player2').append(`<p>Mr. Roboto</p>`);
+				$('#player1').append(`<p id="nameOne">${$player1Name}</p>`);
+				$player2Name = "Mr. Roboto";
+				$('#player2').append(`<p id="nameTwo">${$player2Name}</p>`);
 				onePlayerGame();
 		} else if($('#2player').is(":checked") && $player1.length > 0 && $player2.length > 0) {
 				$('#player1').append(`<p id="nameOne">${$player1Name}</p>`);
