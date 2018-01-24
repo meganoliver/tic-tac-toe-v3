@@ -168,6 +168,7 @@ const endGame = function() {
 					$('#finish').fadeIn(700);
 					$('#finish').addClass("screen-win-one");
 					$('.message').text(`${$player1Name} is the winner!`);
+					return;
 				} else if(boxCount === 8) {
 				$('#board').slideUp(700);
 				$('#finish').fadeIn(700);
@@ -184,6 +185,7 @@ const endGame = function() {
 					$('#finish').fadeIn(700);
 					$('#finish').addClass("screen-win-two");
 					$('.message').text(`${$player2Name} is the winner!`);
+					return;
 				} else if(boxCount === 8) {
 				$('#board').slideUp(700);
 				$('#finish').fadeIn(700);
@@ -242,12 +244,13 @@ const onePlayerGame = function() {
 			$(boxChoice).css("pointerEvents", "none");
 			$(boxChoice).addClass("box-filled-1");
 			endGame();
-			console.log(oWinScenarios);
-			console.log(xWinScenarios);
 			$($player1).removeClass("active");
 			$($player2).addClass("active");
 			openBoxes = $($boxes).not(document.getElementsByClassName("box-filled-1")).not(document.getElementsByClassName("box-filled-2"));
 		}
+		if($('#finish').is(":visible")) {
+				return;
+			}
 		if($($player2).hasClass("active")) {
 			$.each(xWinScenarios, function(key, value) {
 				if(value === 2){
@@ -256,10 +259,11 @@ const onePlayerGame = function() {
 					win = almostWinX.filter(Xitem => {
 						if($(Xitem).hasClass("box-filled-2") || $(Xitem).hasClass("box-filled-1")) {
 							return false;
+							rowColumnX = undefined;
 						} else {
 							return true;
 						}
-				});
+					});
 				}
 			});
 			$.each(oWinScenarios, function(key, value) {
@@ -269,6 +273,7 @@ const onePlayerGame = function() {
 					block = almostWinO.filter(Oitem => {
 						if($(Oitem).hasClass("box-filled-1") || $(Oitem).hasClass("box-filled-2")) {
 							return false;
+							rowColumnO = undefined;
 						} else {
 							return true;
 						}
@@ -288,7 +293,7 @@ const onePlayerGame = function() {
 					done = true;
 					$($player2).removeClass("active");
 					$($player1).addClass("active");
-			} else if(rowColumnX === undefined && rowColumnO === undefined && done === false) {
+			} else {
 				$(openBoxes[0]).addClass("box-filled-2");
 				endGame();
 				done = true;
